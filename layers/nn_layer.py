@@ -2,14 +2,14 @@ from abc import ABC, abstractclassmethod
 
 class NNLayer(ABC):
 
-    
-    def __call__(self, X):
-        self.forward(X)
 
     @abstractclassmethod
     def forward(self, X):
         pass
 
     @abstractclassmethod
-    def backward(self, dY):
+    def backward(self, dZ, lr):
         pass
+
+    def __str__(self):
+        return "NNLayer"

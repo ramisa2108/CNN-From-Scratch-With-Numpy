@@ -1,34 +1,39 @@
 import numpy as np
-from nn_layer import NNLayer
+from .nn_layer import NNLayer
 
 class ReLU(NNLayer):
 
     def __init__(self):
         super().__init__()
-        self.cache = None
+       
+        # Cache for storing input to forward pass. Will be needed for back-propagation
+        self.cache = {'X': None}
 
-    def forward(self, X: np.ndarray):
+    def forward(self, X):
         
         """
             Relu activation function: 
                 ReLU(x) = max(x, 0)
 
             Parameters:
-                X: input to this layer. 
+                X: input to this layer ==> Shape : (m, *) where m = batch size
 
             Returns:
-                RelU(X)
+                Z: RelU(X) ==> Shape : (m, *)
         """
         
         self.cache['X'] = X
         return X * (X > 0)
 
-    def backward(self, dY: np.ndarray):
+    def backward(self, dZ, lr):
         """
             Parameters:
-                dY: d(loss)/d(output of this layer)
+                dZ: d(loss)/d(output of this layer) ==> Shape : (m, *) where m = batch size
 
             Returns:
-                d(loss) / d(input to this layer)
+                dX: d(loss) / d(input to this layer) ==> Shape : (m, *)
         """
-        return dY * (self.cache['X'] > 0)
+        return dZ * (self.cache['X'] > 0)
+
+    def __str__(self):
+        return "ReLU"

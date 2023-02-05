@@ -11,15 +11,17 @@ class Config(object):
 
     train_size = 500
     val_size = 5
-    test_size = 5
+    test_size = 50
 
     learning_rate = 0.001
-    batch_size = 16
-    epochs = 11
+    batch_size = 32
+    epochs = 10
 
     model_folder = os.path.join(data_folder, 'models')
-    model_desc_file = 'linear_model_desc.pkl'
+    model_desc_file = 'lenet5.pkl'
     model_weight_file = None
+
+    read_colored_image = 0
 
 
 

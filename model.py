@@ -57,7 +57,11 @@ class CNN:
             dY = layer.backward(dY, lr)
         return dY
         
-            
+    def predict(self, X):
+
+        y_probs = self.forward(X)
+        y_labels = np.argmax(y_probs, axis=1)
+        return y_probs, y_labels
 
 
             

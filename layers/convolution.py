@@ -22,7 +22,7 @@ class Convolution(NNLayer):
         
         self.in_channels = in_channels
         self.params['W'] = np.random.rand(self.out_channels, in_channels, self.filter_dim, self.filter_dim) * np.sqrt(2.0 / (self.filter_dim * self.filter_dim * in_channels))
-        self.params['b'] = np.zeros(self.out_channels, 1, 1)
+        self.params['b'] = np.zeros((self.out_channels, 1, 1))
 
         self.gradients['dW'] = np.zeros_like(self.params['W'])
         self.gradients['db'] = np.zeros_like(self.params['b'])
@@ -33,8 +33,10 @@ class Convolution(NNLayer):
 
         padded_X = X.copy()
 
-        if padding != 0:
+        if padding > 0:
             padded_X = np.pad(padded_X, pad_width=((0,), (0,), (padding,), (padding,)))
+        elif padding < 0:
+            padded_X = X[:, :, -padding: padding, -padding: padding]
 
         out_m, out_c, out_h, out_w = out_shape
         stride_m, stride_c, stride_h, stride_w = padded_X.strides
@@ -95,12 +97,14 @@ class Convolution(NNLayer):
         dZ_dilated = np.insert(dZ_dilated, dilate * list(range(1, dZ.shape[2])), 0, axis=2)
         dZ_dilated = np.insert(dZ_dilated, dilate * list(range(1, dZ.shape[3])), 0, axis=3)
 
-        dZ_windows = self.get_sliding_windows(dZ_dilated, out_shape=self.cache['X'].shape, padding=padding, stride=1)
+        
+
+        dZ_windows = self.get_sliding_windows(dZ_dilated, out_shape=dZ.shape[:2] + self.cache['X'].shape[2:], padding=padding, stride=1)
         W_180 = np.rot90(self.params['W'], k=2, axes=(2,3))
 
-        
-        self.gradients['dW'] = 1/m * np.einsum('mchwij, mohw -> ocij', self.cache['X_windows'], dZ_dilated)
         dX = np.einsum('mohwij, ocij -> mchw', dZ_windows, W_180)
+        
+        self.gradients['dW'] = 1/m * np.einsum('mchwij, mohw -> ocij', self.cache['X_windows'], dZ)
         self.gradients['db'] = 1/m * np.einsum('ijkl->j', dZ)[:,np.newaxis, np.newaxis]
         self.update_params(lr)
         return dX

@@ -3,7 +3,8 @@ import pandas as pd
 import os
 import cv2
 import pickle
-
+from config import Config
+conf = Config()
 
 def one_hot_encoding(Y, labels):
 
@@ -31,15 +32,21 @@ def load_datasets(image_folder, label_file):
     y = []
 
     for image_file in all_images:
-        img = cv2.imread(os.path.join(image_folder, image_file))
-
-        img = img / 255.0
+        img = cv2.imread(os.path.join(image_folder, image_file), conf.read_colored_image)
+        img = (255.0 - img) / 255.0
 
         X.append(img)
         y.append(map[image_file])
     
     X = np.array(X)
     y = np.array(y)
+
+    # for RGB
+    if conf.read_colored_image:
+        X = X.transpose(0, 3, 1, 2)
+    # for Grayscale
+    else:
+        X = X[:, np.newaxis, :, :]
 
     
     print("{} images loaded from {}, labels loaded {}".format(len(X), image_folder, len(y)))

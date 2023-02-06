@@ -26,20 +26,19 @@ class CNN:
             
             self.model_layers.append(layer)
 
-        print(self.model_layers)
-
+        
         if model_weight_file is not None:
             self.load_model_weights(model_weight_file)
 
     def save_model_weights(self, save_dir, file_prefix):
 
         print('Saving model in {} as {}_model_ckpt.pkl'.format(save_dir, file_prefix))
-        pickle.dump(self.model_layers, open(os.path.join(save_dir, file_prefix + '_model_ckpt.pkl', 'wb')))
+        pickle.dump(self.model_layers, open(os.path.join(save_dir, file_prefix + '_model_ckpt.pkl'), 'wb'))
         
 
-    def load_model_weights(self, model_weight_file):
+    def load_model_weights(self, save_dir, file_prefix):
 
-        with open(model_weight_file, "rb") as file:
+        with open(os.path.join(save_dir, file_prefix + '_model_ckpt.pkl'), "rb") as file:
             self.model_layers = pickle.load(file)
 
     def forward(self, X):
@@ -49,19 +48,33 @@ class CNN:
             
         return np.transpose(X)
 
+
     def backward(self, Y, lr):
         
         dY = np.transpose(Y)
         
         for layer in self.model_layers[::-1]:
             dY = layer.backward(dY, lr)
-        return dY
+        return
+    
+    def train_model(self, X, y, lr):
+
+        for layer in self.model_layers:
+            X = layer.forward(X)
+        
+        dy = np.transpose(y)
+
+        for layer in self.model_layers[::-1]:
+            dy = layer.backward(dy, lr)
+         
         
     def predict(self, X):
 
-        y_probs = self.forward(X)
-        y_labels = np.argmax(y_probs, axis=1)
-        return y_probs, y_labels
+        for layer in self.model_layers:
+            X = layer.forward(X)
+        
+        y_probs = np.transpose(X)
+        return y_probs
 
 
             

@@ -5,6 +5,7 @@ class MaxPool(NNLayer):
 
     def __init__(self, filter_dim, stride):
         super().__init__()
+        self.name = 'max_pool'
         self.filter_dim = filter_dim
         self.stride = stride
         self.cache = {'X': None}
@@ -86,3 +87,10 @@ class MaxPool(NNLayer):
 
     def __str__(self):
         return "MaxPool f: {} s: {}".format(self.filter_dim, self.stride)
+
+
+    def save_params(self):
+        return {"name": self.name}
+    
+    def load_params(self):
+        return

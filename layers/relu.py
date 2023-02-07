@@ -5,6 +5,7 @@ class ReLU(NNLayer):
 
     def __init__(self):
         super().__init__()
+        self.name = 'relu'
        
         # Cache for storing input to forward pass. Will be needed for back-propagation
         self.cache = {'X': None}
@@ -37,3 +38,10 @@ class ReLU(NNLayer):
 
     def __str__(self):
         return "ReLU"
+
+
+    def save_params(self):
+        return {"name": self.name}
+    
+    def load_params(self):
+        return

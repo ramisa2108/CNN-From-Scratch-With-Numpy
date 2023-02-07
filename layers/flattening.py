@@ -6,6 +6,7 @@ class Flattening(NNLayer):
 
     def __init__(self):
         super().__init__()
+        self.name = 'flatten'
         self.cache = {'in_shape': None}
     
     def forward(self, X):
@@ -38,3 +39,9 @@ class Flattening(NNLayer):
     
     def __str__(self):
         return "Flattening"
+
+    def save_params(self):
+        return {"name": self.name}
+    
+    def load_params(self):
+        return

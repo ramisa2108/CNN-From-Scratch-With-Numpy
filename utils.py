@@ -4,12 +4,15 @@ import os
 import cv2
 import pickle
 from config import Config
+from sklearn import metrics
+
+
 conf = Config()
 
 def one_hot_encoding(Y):
 
     m = Y.shape[0]
-    one_hot = np.zeros((m, conf.num_labels))
+    one_hot = np.zeros((m, conf.NUM_LABELS))
     one_hot[np.arange(m), Y] = 1
     return one_hot
 
@@ -45,8 +48,8 @@ def load_datasets(image_folder, label_file, dataset_size=None):
     y = []
 
     for image_file in all_images:
-        img = cv2.imread(os.path.join(image_folder, image_file), conf.read_colored_image)
-        img = cv2.resize(img, (64, 64))
+        img = cv2.imread(os.path.join(image_folder, image_file), conf.READ_COLORED_IMAGE)
+        img = cv2.resize(img, conf.IMAGE_DIMS)
         img = (255.0 - img) / 255.0
 
         X.append(img)
@@ -57,7 +60,7 @@ def load_datasets(image_folder, label_file, dataset_size=None):
 
 
     # for RGB
-    if conf.read_colored_image:
+    if conf.READ_COLORED_IMAGE:
         X = X.transpose(0, 3, 1, 2)
     # for Grayscale
     else:
@@ -75,53 +78,36 @@ def load_model_description(file_name):
 
     return layers
 
+def load_model_weights(file_name):
+    
+    if not os.path.exists(file_name):
+        return None
+    with open(file_name, 'rb') as file:
+        weights = pickle.load(file)
+    return weights
+
 def cross_entropy_loss(true_labels, output_propabilities):
     return np.sum(-1.0 * true_labels * np.log(output_propabilities))
 
+
 def accuracy(true_labels, predicted_labels):
-    return np.sum(true_labels == predicted_labels) / len(true_labels)
+    return metrics.accuracy_score(true_labels, predicted_labels)
 
 
 def macro_f1_score(true_labels, predicted_labels):
 
-    f1_scores = []
-    for l in range(conf.num_labels):
-        pos = np.where(predicted_labels == l)[0]
-        tp = np.sum(true_labels[pos] == l)
-        fp = np.sum(true_labels[pos] != l)
-        pos = np.where(true_labels == l)[0]
-        fn = np.sum(predicted_labels[pos] != l)
-        f1 = 2 * tp / (2 * tp + fp + fn) if tp > 0 else 0
-        f1_scores.append(f1)
-        
-    macro_f1_score = np.mean(f1_scores)
-    return macro_f1_score
+    return metrics.f1_score(true_labels, predicted_labels, average='macro')
 
-def load_toy_dataset(file_path):
-    with open(file_path, 'r') as file:
-        lines = file.readlines()
+def label_wise_score(true_labels, predicted_labels):
 
-    X = []
-    y = []
-    for l in lines:
-        xy = l.strip().split()
-        y += [int(xy[-1])]
-        X += [[float(x) for x in xy[:-1]]]
-
-    X = np.array(X)
-    X = X.reshape((-1, 2, 2))
-    y = np.array(y)
-    y = one_hot_encoding(y, 10)
-    return X, y
-        
-
-    
-
-    
+    print("F1 score for labels:")
+    for l in range(conf.NUM_LABELS):
+        pos = true_labels[true_labels == l]
+        f1 = metrics.f1_score(true_labels[pos], predicted_labels[pos], average='macro')
+        acc = metrics.accuracy_score(true_labels[pos], predicted_labels[pos])
+        print("{} acc: {}, f1: {}".format(l, acc, f1))
 
 
-    
 
-    
-    
+
 

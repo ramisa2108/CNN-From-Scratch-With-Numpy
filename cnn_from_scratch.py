@@ -365,7 +365,7 @@ for i in range(y_true.shape[1]):
 
     
 
-for epoch in range(conf.epochs):
+for epoch in range(conf.EPOCHS):
     print(epoch)
     model.train(x_train, y_true, lr)
 

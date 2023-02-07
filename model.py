@@ -5,7 +5,7 @@ import numpy as np
 
 class CNN:
 
-    def __init__(self, model_desc, model_weight_file=None):
+    def __init__(self, model_desc, model_weight=None):
 
         self.model_layers = []
         for l in model_desc:
@@ -27,23 +27,36 @@ class CNN:
             self.model_layers.append(layer)
 
         
-        if model_weight_file is not None:
-            self.load_model_weights(model_weight_file)
+        if model_weight is not None:
+            self.load_model_weights(model_weight)
 
     def save_model_weights(self, save_dir, file_prefix):
 
-        print('Saving model in {} as {}_model_ckpt.pkl'.format(save_dir, file_prefix))
-        pickle.dump(self.model_layers, open(os.path.join(save_dir, file_prefix + '_model_ckpt.pkl'), 'wb'))
+        print('Saving model in {} as {}_model_weights.pkl'.format(save_dir, file_prefix))
+        layer_params = []
+        for layer in self.model_layers:
+            layer_params += [layer.save_params()]
+
+        pickle.dump(layer_params, open(os.path.join(save_dir, file_prefix + '_model_weights.pkl'), 'wb'))
         
 
-    def load_model_weights(self, save_dir, file_prefix):
+    def load_model_weights(self, model_weights):
 
-        with open(os.path.join(save_dir, file_prefix + '_model_ckpt.pkl'), "rb") as file:
-            self.model_layers = pickle.load(file)
+        if len(model_weights) != self.model_layers:
+            raise('Layers dont match')
 
+        for i, layer in enumerate(self.model_layers):
+            params = model_weights[i]
+            if params['name'] != layer.name:
+                raise('Layers dont match {} and {}'.format(params['name'], layer.name))
+
+            layer.load_params(params)
+        
+
+        
     def forward(self, X):
         
-        for i, layer in enumerate(self.model_layers):
+        for layer in self.model_layers:
             X = layer.forward(X)
             
         return np.transpose(X)

@@ -11,5 +11,14 @@ class NNLayer(ABC):
     def backward(self, dZ, lr):
         pass
 
+    @abstractclassmethod
+    def load_params(self):
+        pass
+
+    @abstractclassmethod
+    def save_params(self):
+        pass
+
+    
     def __str__(self):
         return "NNLayer"

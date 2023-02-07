@@ -6,6 +6,8 @@ class FullyConnected(NNLayer):
     def __init__(self, out_dim):
 
         super().__init__()
+
+        self.name = 'fc'
         
         self.out_dim = out_dim
         self.in_dim = None
@@ -89,3 +91,26 @@ class FullyConnected(NNLayer):
 
     def __str__(self):
         return "Fully Connected out: {}".format(self.out_dim)
+
+    def save_params(self):
+
+        params = {}
+        params['name'] = self.name
+        params['W'] = self.params['W']
+        params['b'] = self.params['b']
+        params['dW'] = self.gradients['dW']
+        params['db'] = self.gradients['db']
+        params['in_dim'] = self.in_dim       
+        return params
+        
+
+    def load_params(self, params):
+        
+        self.in_dim = params['in_dim']
+        self.params['W'] = params['W']
+        self.params['b'] = params['b']
+        self.gradients['dW'] = np.zeros_like(params['W'])
+        self.gradients['db'] = np.zeros_like(params['b'])
+
+        assert(self.params['W'].shape == (self.out_dim, self.in_dim))
+        assert(self.params['b'].shape == (self.out_dim, 1))

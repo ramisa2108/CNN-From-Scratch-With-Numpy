@@ -5,7 +5,8 @@ class Convolution(NNLayer):
 
     def __init__(self, out_channels, filter_dim, stride=1, padding=0):
         super().__init__()
-        
+
+        self.name = 'conv'
         self.in_channels = None
         self.out_channels = out_channels
         self.filter_dim = filter_dim
@@ -60,7 +61,7 @@ class Convolution(NNLayer):
                     where p=padding, f=filter_dim, s=stride,
                     oh = (h+2p-f)/s+1 , ow = (w+2p-f)/s+1) , oc=output_channels 
         """
-        if self.in_channels is None:
+        if self.params['W'] is None:
             self.xavier_init(X.shape[1])
         
         self.cache['X'] = X
@@ -115,8 +116,32 @@ class Convolution(NNLayer):
         self.params['W'] = self.params['W'] - lr * self.gradients['dW']   # W = W - alpha * dW
         self.params['b'] = self.params['b'] - lr * self.gradients['db']   # b = b - alpha * db
 
+    
 
     def __str__(self):
         return "Convolution out: {} f: {} s: {} p: {}".format(self.out_channels, self.filter_dim, self.stride, self.padding)
 
+    
+    def save_params(self):
+
+        params = {}
+        params['name'] = self.name
+        params['W'] = self.params['W']
+        params['b'] = self.params['b']
+        params['dW'] = self.gradients['dW']
+        params['db'] = self.gradients['db']
+        params['in_channels'] = self.in_channels       
+        return params
         
+
+    def load_params(self, params):
+        
+        self.in_channels = params['in_channels']
+        self.params['W'] = params['W']
+        self.params['b'] = params['b']
+        self.gradients['dW'] = np.zeros_like(params['W'])
+        self.gradients['db'] = np.zeros_like(params['b'])
+
+        assert (self.params['W'].shape == (self.out_channels, self.in_channels, self.filter_dim, self.filter_dim))
+        assert (self.params['b'].shape == (self.out_channels, 1, 1))
+    

@@ -6,6 +6,7 @@ class SoftMax(NNLayer):
     def __init__(self):
         
         super().__init__()    
+        self.name = 'softmax'
         
         # Cache for storing result of forward pass. Will be needed for back-propagation
         self.cache = {'Z': None}
@@ -41,3 +42,10 @@ class SoftMax(NNLayer):
 
     def __str__(self):
         return "Softmax"
+
+
+    def save_params(self):
+        return {"name": self.name}
+    
+    def load_params(self):
+        return

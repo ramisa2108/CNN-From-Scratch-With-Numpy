@@ -12,7 +12,7 @@ class NNLayer(ABC):
         pass
 
     @abstractclassmethod
-    def load_params(self):
+    def load_params(self, params):
         pass
 
     @abstractclassmethod

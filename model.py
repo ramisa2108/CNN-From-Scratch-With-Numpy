@@ -1,48 +1,44 @@
 from layers import *
 import pickle
-import os
 import numpy as np
+from layers import *
 
 class CNN:
 
-    def __init__(self, model_desc, model_weight=None):
+    def __init__(self, model_weight=None):
 
-        self.model_layers = []
-        for l in model_desc:
-            if l['name'] == 'conv':
-                layer = convolution.Convolution(l['out_channels'], l['filter_dim'], l['stride'], l['padding'])
-            elif l['name'] == 'flatten':
-                layer = flattening.Flattening()
-            elif l['name'] == 'fc':
-                layer = fully_connected.FullyConnected(l['out_dim'])
-            elif l['name'] == 'max_pool':
-                layer = max_pool.MaxPool(l['filter_dim'], l['stride'])
-            elif l['name'] == 'relu':
-                layer = relu.ReLU()
-            elif l['name'] == 'softmax':
-                layer = softmax.SoftMax()
-            else:
-                print('Unknown layer')
-            
-            self.model_layers.append(layer)
+        
+        conv1 = convolution.Convolution(out_channels=8, filter_dim=5, stride=1, padding=0)
+        relu1 = relu.ReLU()
+        max_pool1 = max_pool.MaxPool(filter_dim=3, stride=3)
 
+        conv2 = convolution.Convolution(out_channels=16, filter_dim=3, stride=1, padding=0)
+        relu2 = relu.ReLU()
+        max_pool2 = max_pool.MaxPool(filter_dim=3, stride=3)
+
+        flatten1 = flattening.Flattening() 
+        fc1 = fully_connected.FullyConnected(out_dim=200)
+        fc2 = fully_connected.FullyConnected(out_dim=10)
+        softmax1 = softmax.SoftMax()
+
+        self.model_layers = [conv1, relu1, max_pool1, conv2, relu2, max_pool2, flatten1, fc1, fc2, softmax1]        
         
         if model_weight is not None:
             self.load_model_weights(model_weight)
 
-    def save_model_weights(self, save_dir, file_prefix):
+    def save_model_weights(self, file_path):
 
-        print('Saving model in {} as {}_model_weights.pkl'.format(save_dir, file_prefix))
+        print('Saving model in {}'.format(file_path))
         layer_params = []
         for layer in self.model_layers:
             layer_params += [layer.save_params()]
 
-        pickle.dump(layer_params, open(os.path.join(save_dir, file_prefix + '_model_weights.pkl'), 'wb'))
+        pickle.dump(layer_params, open(file_path, 'wb'))
         
 
     def load_model_weights(self, model_weights):
 
-        if len(model_weights) != self.model_layers:
+        if len(model_weights) != len(self.model_layers):
             raise('Layers dont match')
 
         for i, layer in enumerate(self.model_layers):
@@ -51,8 +47,6 @@ class CNN:
                 raise('Layers dont match {} and {}'.format(params['name'], layer.name))
 
             layer.load_params(params)
-        
-
         
     def forward(self, X):
         
@@ -88,8 +82,3 @@ class CNN:
         
         y_probs = np.transpose(X)
         return y_probs
-
-
-            
-
-    

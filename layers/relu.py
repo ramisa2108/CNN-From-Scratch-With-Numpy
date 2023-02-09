@@ -1,6 +1,7 @@
 import numpy as np
 from .nn_layer import NNLayer
 
+
 class ReLU(NNLayer):
 
     def __init__(self):
@@ -43,5 +44,5 @@ class ReLU(NNLayer):
     def save_params(self):
         return {"name": self.name}
     
-    def load_params(self):
+    def load_params(self, params):
         return

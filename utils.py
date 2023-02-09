@@ -9,6 +9,7 @@ from sklearn import metrics
 
 conf = Config()
 
+
 def one_hot_encoding(Y):
 
     m = Y.shape[0]
@@ -46,6 +47,7 @@ def load_datasets(image_folder, label_file, dataset_size=None):
 
     X = []
     y = []
+    
 
     for image_file in all_images:
         img = cv2.imread(os.path.join(image_folder, image_file), conf.READ_COLORED_IMAGE)
@@ -65,7 +67,14 @@ def load_datasets(image_folder, label_file, dataset_size=None):
     # for Grayscale
     else:
         X = X[:, np.newaxis, :, :]
-
+    
+    if 'train' in image_folder:
+        list_name = 'train_file_list.pkl'
+    elif 'val' in image_folder:
+        list_name = 'val_file_list.pkl'
+    else:
+        list_name = 'test_file_list.pkl'
+    pickle.dump(all_images, open(os.path.join(conf.output_folder, list_name), "wb"))
     
     print("{} images loaded from {}, labels loaded {}".format(len(X), image_folder, len(y)))
     return X, y
@@ -100,14 +109,10 @@ def macro_f1_score(true_labels, predicted_labels):
 
 def label_wise_score(true_labels, predicted_labels):
 
-    print("F1 score for labels:")
+    print("Accuracy and F1 score for labels:")
     for l in range(conf.NUM_LABELS):
-        pos = true_labels[true_labels == l]
+        pos = np.where(true_labels == l)
         f1 = metrics.f1_score(true_labels[pos], predicted_labels[pos], average='macro')
         acc = metrics.accuracy_score(true_labels[pos], predicted_labels[pos])
         print("{} acc: {}, f1: {}".format(l, acc, f1))
-
-
-
-
 

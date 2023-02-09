@@ -70,7 +70,7 @@ def plot_metrics(x, y, x_label, y_label):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(x_label + ' vs. ' + y_label)
-    plt.savefig(x_label + ' vs ' + y_label + '.png')
+    plt.savefig(os.path.join(conf.output_folder, x_label + ' vs ' + y_label + '.png'))
     plt.clf()
         
 

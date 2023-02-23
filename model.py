@@ -18,10 +18,12 @@ class CNN:
 
         flatten1 = flattening.Flattening() 
         fc1 = fully_connected.FullyConnected(out_dim=200)
+        relu3 = relu.ReLU()
         fc2 = fully_connected.FullyConnected(out_dim=10)
+        relu4 = relu.ReLU()
         softmax1 = softmax.SoftMax()
 
-        self.model_layers = [conv1, relu1, max_pool1, conv2, relu2, max_pool2, flatten1, fc1, fc2, softmax1]        
+        self.model_layers = [conv1, relu1, max_pool1, conv2, relu2, max_pool2, flatten1, fc1, relu3, fc2, relu4, softmax1]        
         
         if model_weight is not None:
             self.load_model_weights(model_weight)

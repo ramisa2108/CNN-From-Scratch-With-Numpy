@@ -73,22 +73,13 @@ def plot_metrics(x, y, x_label, y_label):
     plt.savefig(os.path.join(conf.output_folder, x_label + ' vs ' + y_label + '.png'))
     plt.clf()
         
-
-if __name__ == '__main__':
-
-    np.random.seed(0)
-    np.set_printoptions(precision=2)
+def train_and_test():
 
     train_X, train_y_labels = load_datasets(conf.train_image_folder, conf.train_labels, conf.train_size)
     train_y = one_hot_encoding(train_y_labels)
 
     (train_X, train_y), (val_X, val_y) = split_train_set(train_X, train_y, conf.val_prop)
 
-
-    test_X, test_y_labels = load_datasets(conf.test_image_folder, conf.test_labels, conf.test_size)
-    test_y = one_hot_encoding(test_y_labels)
-
-    
     model_weights = None
     if conf.load_pretrained:
         model_weights = load_model_weights(conf.model_weight_file)
@@ -123,14 +114,13 @@ if __name__ == '__main__':
         val_accs += [val_accuracy]
         val_f1s += [val_f1_score]
 
-    print('Training completed. Testing...')
-
+    
     plot_metrics(x=np.arange(len(train_losses)), y=train_losses, x_label='Epoch', y_label='Training Loss')
     plot_metrics(x=np.arange(len(val_losses)), y=val_losses, x_label='Epoch', y_label='Validation Loss')
     plot_metrics(x=np.arange(len(val_accs)), y=val_accs, x_label='Epoch', y_label='Validation Accuracy')
     plot_metrics(x=np.arange(len(val_f1s)), y=val_f1s, x_label='Epoch', y_label='Validation Macro F1')
 
-
+    
     model_weights = load_model_weights(conf.model_weight_file)
     model = CNN(model_weights)
 
@@ -150,6 +140,11 @@ if __name__ == '__main__':
     plt.savefig(os.path.join(conf.output_folder, 'Confusion Matrix For Validation Set'))
     plt.clf()
 
+    print('Training completed. Testing...')
+
+    test_X, test_y_labels = load_datasets(conf.test_image_folder, conf.test_labels, conf.test_size)
+    test_y = one_hot_encoding(test_y_labels)
+
     test_pred = eval_epoch(model, test_X)
     test_loss, test_f1_score, test_accuracy = calculate_metrics(test_y, test_pred)
 
@@ -166,10 +161,50 @@ if __name__ == '__main__':
     plt.savefig(os.path.join(conf.output_folder, 'Confusion Matrix For Test Set'))
     plt.clf()
     
-    with open(os.path.join(conf.output_folder, 'test_file_list.pkl'), 'rb') as file:
+    with open(os.path.join(conf.output_folder, 'test_file_list.pickle'), 'rb') as file:
         test_file_names = pickle.load(file)
 
-    output_df = pd.DataFrame(columns=['FileName, Digit'])
+    output_df = pd.DataFrame(columns=['FileName', 'Digit'])
     output_df['FileName'] = test_file_names
     output_df['Digit'] = test_pred_labels
     output_df.to_csv(os.path.join(conf.output_folder, 'predictions.csv'), index=False)
+
+def predict():
+
+    model_weights = load_model_weights(conf.model_weight_file)
+    model = CNN(model_weights)
+
+    while True:
+            image_path = input('Enter image path: ')
+            X = load_image(image_path)
+            X = np.array([X])
+            
+            # for RGB
+            if conf.READ_COLORED_IMAGE:
+                X = X.transpose(0, 3, 1, 2)
+            # for Grayscale
+            else:
+                X = X[:, np.newaxis, :, :]
+            
+            print(X.shape)
+            prediction = eval_epoch(model, X)
+            predicted_label = get_labels(prediction)[0]
+            print('predicted digit:', predicted_label)
+    
+
+if __name__ == '__main__':
+
+    np.random.seed(0)
+    np.set_printoptions(precision=2)
+
+    if conf.train_and_test_mode:
+        train_and_test()
+    else:
+         predict()   
+         
+            
+
+        
+
+
+    

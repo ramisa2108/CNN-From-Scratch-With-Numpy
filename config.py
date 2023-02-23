@@ -9,14 +9,16 @@ class Config(object):
     train_labels = os.path.join(data_folder, 'train.csv')
     test_labels = os.path.join(data_folder, 'test.csv')
 
-    train_size = 5000
+    train_size = None
     val_prop = 0.2
-    test_size = 5000
+    test_size = None
 
 
     model_folder = 'saved_models'
-    model_weight_file = os.path.join(model_folder, 'big_model_weights.pkl')
-    load_pretrained = False
+    model_weight_file = os.path.join(model_folder, 'best_model.pickle')
+    load_pretrained = True
+    train_and_test_mode = False # train and test model if true, only predict if False
+
 
     output_folder = 'outputs'
 
@@ -25,4 +27,6 @@ class Config(object):
     LEARNING_RATE = 0.01
     IMAGE_DIMS = (32, 32)
     BATCH_SIZE = 32
-    EPOCHS = 20
+    EPOCHS = 10
+
+

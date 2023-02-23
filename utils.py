@@ -34,12 +34,20 @@ def split_train_set(X, y, val_prop):
     
     return (train_X, train_y), (val_X, val_y)
 
+def load_image(image_path):
+    img = cv2.imread(image_path, conf.READ_COLORED_IMAGE)
+    img = cv2.resize(img, conf.IMAGE_DIMS)
+    img = (255.0 - img) / 255.0
+    return img
+
+
 def load_datasets(image_folder, label_file, dataset_size=None):
 
     labels = pd.read_csv(label_file)
     map = dict(zip(labels['filename'], labels['digit']))
 
-    all_images = os.listdir(image_folder)
+    all_images = [l for l in os.listdir(image_folder) if l.endswith('.png')]
+
 
     if dataset_size is not None:
         np.random.shuffle(all_images)
@@ -50,10 +58,7 @@ def load_datasets(image_folder, label_file, dataset_size=None):
     
 
     for image_file in all_images:
-        img = cv2.imread(os.path.join(image_folder, image_file), conf.READ_COLORED_IMAGE)
-        img = cv2.resize(img, conf.IMAGE_DIMS)
-        img = (255.0 - img) / 255.0
-
+        img = load_image(os.path.join(image_folder, image_file))
         X.append(img)
         y.append(map[image_file])
         
@@ -69,13 +74,14 @@ def load_datasets(image_folder, label_file, dataset_size=None):
         X = X[:, np.newaxis, :, :]
     
     if 'train' in image_folder:
-        list_name = 'train_file_list.pkl'
+        list_name = 'train_file_list.pickle'
     elif 'val' in image_folder:
-        list_name = 'val_file_list.pkl'
+        list_name = 'val_file_list.pickle'
     else:
-        list_name = 'test_file_list.pkl'
+        list_name = 'test_file_list.pickle'
+        
     pickle.dump(all_images, open(os.path.join(conf.output_folder, list_name), "wb"))
-    
+
     print("{} images loaded from {}, labels loaded {}".format(len(X), image_folder, len(y)))
     return X, y
 

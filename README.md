@@ -28,19 +28,12 @@ For training and testing the model, set *train_and_test_model* to True in config
 
 ### Useful articles
 
-Back propagation for covolution layer with stride > 1:
+1. Back propagation for covolution layer with stride > 1 [part1](https://medium.com/@mayank.utexas/backpropagation-for-convolution-with-strides-8137e4fc2710) and [part2] (https://medium.com/@mayank.utexas/backpropagation-for-convolution-with-strides-fb2f2efc4faa)
 
-1. https://medium.com/@mayank.utexas/backpropagation-for-convolution-with-strides-8137e4fc2710
-2. https://medium.com/@mayank.utexas/backpropagation-for-convolution-with-strides-fb2f2efc4faa
+2. Functions for vectorization:
 
-Vectorizing convolution layer operations:
+ - numpy.einsum function [doc](https://numpy.org/doc/stable/reference/generated/numpy.einsum.html) and [guide](https://ajcr.net/Basic-guide-to-einsum/)
+ -  numpy.lib.stride_tricks.as_strided function [doc](https://numpy.org/doc/stable/reference/generated/numpy.lib.stride_tricks.as_strided.html)
 
-1. numpy.einsum
-    - https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
-    - https://ajcr.net/Basic-guide-to-einsum/
-2. numpy.lib.stride_tricks.as_strided
-    - https://numpy.org/doc/stable/reference/generated/numpy.lib.stride_tricks.as_strided.html
-
-3. Creating a Vectorized Convolution layer in NumPy
-    - https://blog.ca.meron.dev/Vectorized-CNN/
+3. Creating a Vectorized Convolution layer in NumPy [blogpost](https://blog.ca.meron.dev/Vectorized-CNN/)
 

@@ -7,7 +7,6 @@ class CNN:
 
     def __init__(self, model_weight=None):
 
-        
         conv1 = convolution.Convolution(out_channels=8, filter_dim=5, stride=1, padding=0)
         relu1 = relu.ReLU()
         max_pool1 = max_pool.MaxPool(filter_dim=3, stride=3)

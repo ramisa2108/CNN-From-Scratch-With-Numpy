@@ -28,8 +28,6 @@ class Convolution(NNLayer):
         self.gradients['dW'] = np.zeros_like(self.params['W'])
         self.gradients['db'] = np.zeros_like(self.params['b'])
 
-    
-
     def get_sliding_windows(self, X, out_shape, padding, stride):
 
         padded_X = X.copy()

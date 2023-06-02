@@ -22,12 +22,8 @@ class FullyConnected(NNLayer):
     def xavier_init(self, in_dim):
         
         self.in_dim = in_dim
-        
-        # self.params['W'] = np.random.randn(self.out_dim, self.in_dim) * np.sqrt(1.0 / self.in_dim)
-        # self.params['b'] = np.random.randn(1, self.out_dim) * np.sqrt(1.0 / self.out_dim) 
-        
+    
         self.params['W'] = np.random.randn(self.out_dim, self.in_dim) * np.sqrt(2.0 / self.in_dim)
-        # self.params['b'] = np.random.randn(self.out_dim, 1) * np.sqrt(1.0 / self.out_dim) 
         self.params['b'] = np.zeros((self.out_dim, 1)) 
         
         self.gradients['dW'] = np.zeros_like(self.params['W'])
@@ -54,7 +50,6 @@ class FullyConnected(NNLayer):
             self.xavier_init(X.shape[0])
         
         self.cache['X'] = X
-        # Z =  self.params['W'] @ X + self.params['b']
         Z = np.einsum('ij, jk -> ik', self.params['W'], X) + self.params['b'] # Z = W * X + b
         return Z
 
@@ -71,13 +66,10 @@ class FullyConnected(NNLayer):
         
         m = self.cache['X'].shape[1]
         
-        # self.gradients['dW'] = 1.0/m * dZ @ np.transpose(self.cache['X'])
-        self.gradients['dW'] = 1.0/m * np.einsum('ij, kj -> ik', dZ, self.cache['X'])
-        # self.gradients['db'] = 1.0/m * np.sum(dZ, axis=1)  #.reshape(self.params['b'].shape)
-        self.gradients['db'] = 1.0/m * np.einsum('kij->ik', [dZ])
+        self.gradients['dW'] = 1.0/m * np.einsum('ij, kj -> ik', dZ, self.cache['X']) # dW = 1/m * dZ * X.T
+        self.gradients['db'] = 1.0/m * np.einsum('kij->ik', [dZ]) # db = 1/m * sum(dZ)
         
-        # dX = np.transpose(self.params['W']) @ dZ
-        dX = np.einsum('ji, jk->ik', self.params['W'], dZ)
+        dX = np.einsum('ji, jk->ik', self.params['W'], dZ) # dX = W.T * dZ
         self.update_params(lr)
 
         return dX

@@ -60,8 +60,7 @@ def train_epoch(model, train_X, train_y):
         train_loss += cross_entropy_loss(train_y_batch, y_out_prob)
 
 
-    train_loss /= train_X.shape[0]
-        
+    train_loss /= train_X.shape[0]    
     return train_loss
 
 def plot_metrics(x, y, x_label, y_label):
@@ -72,7 +71,18 @@ def plot_metrics(x, y, x_label, y_label):
     plt.title(x_label + ' vs. ' + y_label)
     plt.savefig(os.path.join(conf.output_folder, x_label + ' vs ' + y_label + '.png'))
     plt.clf()
-        
+
+
+def plot_confusion_matrix(y_true, y_pred, title):
+    cm = confusion_matrix(y_true, y_pred)
+    sns.heatmap(cm, annot=True)
+    plt.xlabel('True labels')
+    plt.ylabel('Predicted labels')
+    plt.title(title)
+    plt.savefig(os.path.join(conf.output_folder, title))
+    plt.clf()
+
+
 def train_and_test():
 
     train_X, train_y_labels = load_datasets(conf.train_image_folder, conf.train_labels, conf.train_size)
@@ -131,15 +141,8 @@ def train_and_test():
 
     val_y_labels = get_labels(val_y)
     val_pred_labels = get_labels(val_pred)
+    plot_confusion_matrix(val_y_labels, val_pred_labels, 'Confusion Matrix For Validation Set')
     
-    cm = confusion_matrix(val_y_labels, val_pred_labels)
-    sns.heatmap(cm, annot=True)
-    plt.xlabel('True labels')
-    plt.ylabel('Predicted labels')
-    plt.title('Confusion Matrix For Validation Set')
-    plt.savefig(os.path.join(conf.output_folder, 'Confusion Matrix For Validation Set'))
-    plt.clf()
-
     print('Training completed. Testing...')
 
     test_X, test_y_labels = load_datasets(conf.test_image_folder, conf.test_labels, conf.test_size)
@@ -152,14 +155,7 @@ def train_and_test():
 
     test_y_labels = get_labels(test_y)
     test_pred_labels = get_labels(test_pred)
-
-    cm = confusion_matrix(test_y_labels, test_pred_labels)
-    sns.heatmap(cm, annot=True)
-    plt.xlabel('True labels')
-    plt.ylabel('Predicted labels')
-    plt.title('Confusion Matrix For Test Set')
-    plt.savefig(os.path.join(conf.output_folder, 'Confusion Matrix For Test Set'))
-    plt.clf()
+    plot_confusion_matrix(test_y_labels, test_pred_labels, 'Confusion Matrix For Test Set')
     
     with open(os.path.join(conf.output_folder, 'test_file_list.pickle'), 'rb') as file:
         test_file_names = pickle.load(file)
@@ -186,7 +182,6 @@ def predict():
             else:
                 X = X[:, np.newaxis, :, :]
             
-            print(X.shape)
             prediction = eval_epoch(model, X)
             predicted_label = get_labels(prediction)[0]
             print('predicted digit:', predicted_label)

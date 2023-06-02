@@ -15,7 +15,6 @@ class MaxPool(NNLayer):
 
     def get_sliding_windows(self, X, out_shape, stride):
 
-        
         out_m, out_c, out_h, out_w = out_shape
         stride_m, stride_c, stride_h, stride_w = X.strides
 
@@ -25,6 +24,7 @@ class MaxPool(NNLayer):
         )
 
     def repeat(self, Z, out_shape):
+        
         Z_repeated = Z.repeat(self.filter_dim, axis=2).repeat(self.filter_dim, axis=3)
         Z_padded = np.zeros(out_shape)
         Z_padded[:, :, :Z_repeated.shape[2], :Z_repeated.shape[3]] += Z_repeated
